@@ -11,5 +11,5 @@ export const env = {
   corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:5173').split(',').map((s) => s.trim()).filter(Boolean),
   defaultAdminEmail: process.env.DEFAULT_ADMIN_EMAIL || 'admin@nibatech.com',
   defaultAdminPassword: process.env.DEFAULT_ADMIN_PASSWORD || 'admin123',
-  seedDemo: process.env.SEED_DEMO !== 'false',
+  seedDemo: process.env.SEED_DEMO === 'true',
 }

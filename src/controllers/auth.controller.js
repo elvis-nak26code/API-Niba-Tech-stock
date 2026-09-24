@@ -37,16 +37,11 @@ export const login = catchAsync(async (req, res) => {
 })
 
 export const register = catchAsync(async (req, res) => {
-  const { firstName = '', lastName = '', email, phone = '', password, role } = req.body
+  const { firstName = '', lastName = '', email, phone = '', password } = req.body
   if (!email || !password) throw HttpError('E-mail et mot de passe requis.', 400)
   if (String(password).length < 6) throw HttpError('Mot de passe trop court (6 caractères minimum).', 400)
   const exists = await User.findOne({ email: String(email).toLowerCase() })
   if (exists) throw HttpError('Un compte existe déjà avec cet e-mail.', 409)
-
-  let finalRole = 'Employé'
-  if (req.user?.role === 'Administrateur' && ['Administrateur', 'Gestionnaire', 'Caissier', 'Employé'].includes(role)) {
-    finalRole = role
-  }
 
   const user = await User.create({
     firstName,
@@ -54,7 +49,7 @@ export const register = catchAsync(async (req, res) => {
     email: String(email).toLowerCase(),
     phone,
     passwordHash: await bcrypt.hash(String(password), 10),
-    role: finalRole,
+    role: 'Administrateur',
     active: true,
   })
   const token = sign(user)
