@@ -1,4 +1,5 @@
 import express from 'express'
+import path from 'node:path'
 import cors from 'cors'
 import { env } from './config/env.js'
 import { connectDb } from './config/db.js'
@@ -17,6 +18,14 @@ async function main() {
 
   app.get('/', (_req, res) => res.json({ ok: true, name: 'NIBA TECH API', version: '1.0.0' }))
   app.use('/api', routes)
+
+  // Artefacts de mise à jour du bureau (latest.yml + installateur), publiés ici
+  // pour que l'application déployée chez les utilisateurs puisse se mettre à jour.
+  app.use('/updates', express.static(path.join(process.cwd(), 'public', 'updates'), {
+    dotfiles: 'deny',
+    fallthrough: true,
+    maxAge: 0,
+  }))
 
   app.use(notFound)
   app.use(errorHandler)

