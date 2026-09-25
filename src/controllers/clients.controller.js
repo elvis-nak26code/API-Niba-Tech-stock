@@ -14,7 +14,7 @@ export const create = catchAsync(async (req, res) => {
   if (!firstName && !lastName && !phone) throw HttpError('Nom ou téléphone requis.', 400)
   const client = await Client.create(req.body)
   await logActivity({ action: 'création', entity: 'client', entityLabel: `${client.firstName} ${client.lastName}`.trim(), details: 'Client créé' }, req)
-  ok(res, client.toObject(), 201)
+  ok(res, apiDoc(client.toObject()), 201)
 })
 
 export const update = catchAsync(async (req, res) => {
@@ -22,7 +22,7 @@ export const update = catchAsync(async (req, res) => {
   if (!client) throw NotFound('Client introuvable.')
   Object.assign(client, req.body)
   await client.save()
-  ok(res, client.toObject())
+  ok(res, apiDoc(client.toObject()))
 })
 
 export const remove = catchAsync(async (req, res) => {

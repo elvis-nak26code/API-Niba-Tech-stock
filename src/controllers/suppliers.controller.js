@@ -12,7 +12,7 @@ export const create = catchAsync(async (req, res) => {
   if (!name) throw HttpError('Le nom du fournisseur est obligatoire.', 400)
   const supplier = await Supplier.create(req.body)
   await logActivity({ action: 'création', entity: 'supplier', entityLabel: supplier.name, details: 'Fournisseur créé' }, req)
-  ok(res, supplier.toObject(), 201)
+  ok(res, apiDoc(supplier.toObject()), 201)
 })
 
 export const update = catchAsync(async (req, res) => {
@@ -20,7 +20,7 @@ export const update = catchAsync(async (req, res) => {
   if (!supplier) throw NotFound('Fournisseur introuvable.')
   Object.assign(supplier, req.body)
   await supplier.save()
-  ok(res, supplier.toObject())
+  ok(res, apiDoc(supplier.toObject()))
 })
 
 export const remove = catchAsync(async (req, res) => {
