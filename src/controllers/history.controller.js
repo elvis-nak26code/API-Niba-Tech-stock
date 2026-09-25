@@ -9,17 +9,19 @@ import { StockMovement } from '../models/StockMovement.js'
 import { computeTotal } from '../controllers/exits.controller.js'
 import { catchAsync, ok } from '../utils/res.js'
 
-// Construit le journal de bord (entrées, sorties, alertes, activités, sync).
+// Construit le journal de bord du compte connecté (entrées, sorties, alertes,
+// activités, sync) — jamais celui des autres comptes.
 export const list = catchAsync(async (req, res) => {
+  const ownerId = req.user.id
   const [entries, exits, alerts, activities, syncs, products, clients, movements] = await Promise.all([
-    Entry.find().lean(),
-    Exit.find().lean(),
-    Alert.find({ status: 'active' }).lean(),
-    Activity.find().sort({ date: -1 }).limit(500).lean(),
-    SyncLog.find().sort({ startedAt: -1 }).limit(100).lean(),
-    Product.find({ isDeleted: { $ne: true } }).lean(),
-    Client.find().lean(),
-    StockMovement.find().sort({ date: -1 }).limit(500).lean(),
+    Entry.find({ ownerId }).lean(),
+    Exit.find({ ownerId }).lean(),
+    Alert.find({ ownerId, status: 'active' }).lean(),
+    Activity.find({ ownerId }).sort({ date: -1 }).limit(500).lean(),
+    SyncLog.find({ ownerId }).sort({ startedAt: -1 }).limit(100).lean(),
+    Product.find({ ownerId, isDeleted: { $ne: true } }).lean(),
+    Client.find({ ownerId }).lean(),
+    StockMovement.find({ ownerId }).sort({ date: -1 }).limit(500).lean(),
   ])
   const productName = new Map(products.map((p) => [p._id.toString(), p.name]))
   const clientName = new Map(clients.map((c) => [c._id.toString(), `${c.firstName} ${c.lastName}`.trim()]))

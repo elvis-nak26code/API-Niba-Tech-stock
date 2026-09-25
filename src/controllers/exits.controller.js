@@ -13,16 +13,17 @@ export function computeTotal(exit) {
   return Math.max(0, subtotal - Number(exit.discount || 0))
 }
 
-export const list = catchAsync(async (_req, res) => {
-  const exits = await Exit.find().sort({ date: -1 }).lean()
+export const list = catchAsync(async (req, res) => {
+  const exits = await Exit.find({ ownerId: req.user.id }).sort({ date: -1 }).lean()
   ok(res, exits.map((e) => ({ ...apiDoc(e), total: computeTotal(e) })))
 })
 
 export const create = catchAsync(async (req, res) => {
+  const ownerId = req.user.id
   const { clientId = null, lines = [], discount = 0, paymentMethod = 'Espèces', comment = '', date } = req.body
   if (!Array.isArray(lines) || lines.length === 0) throw HttpError('La sortie doit contenir au moins une ligne.', 400)
 
-  const settings = await Setting.findOne({ key: 'default' }).lean()
+  const settings = await Setting.findOne({ ownerId, key: 'default' }).lean()
   const negativeAllowed = settings?.negativeStock === true
 
   const qtyById = new Map()
@@ -31,7 +32,7 @@ export const create = catchAsync(async (req, res) => {
     qtyById.set(line.productId, (qtyById.get(line.productId) || 0) + Number(line.quantity || 0))
   }
 
-  const products = await Product.find({ _id: { $in: [...qtyById.keys()] }, isDeleted: { $ne: true } })
+  const products = await Product.find({ _id: { $in: [...qtyById.keys()] }, ownerId, isDeleted: { $ne: true } })
   const productMap = new Map(products.map((p) => [p._id.toString(), p]))
   for (const [pid, qty] of qtyById) {
     const p = productMap.get(pid)
@@ -41,10 +42,10 @@ export const create = catchAsync(async (req, res) => {
     }
   }
 
-  const client = clientId ? await Client.findById(clientId).lean() : null
-  const seq = await nextSequence('SO')
+  const client = clientId ? await Client.findOne({ _id: clientId, ownerId }).lean() : null
+  const seq = await nextSequence('SO', ownerId)
   const reference = makeReference('SO', seq)
-  const receiptNumber = makeReference(settings?.receiptPrefix || 'REC', await nextSequence('REC'))
+  const receiptNumber = makeReference(settings?.receiptPrefix || 'REC', await nextSequence('REC', ownerId))
   const when = date ? new Date(date) : new Date()
 
   const richLines = lines.map((l) => {
@@ -55,6 +56,7 @@ export const create = catchAsync(async (req, res) => {
   })
 
   const exit = await Exit.create({
+    ownerId,
     reference,
     receiptNumber,
     clientId: clientId || null,
@@ -72,6 +74,7 @@ export const create = catchAsync(async (req, res) => {
     p.quantity -= line.quantity
     await p.save()
     await StockMovement.create({
+      ownerId,
       productId: line.productId,
       productName: p.name,
       type: 'sortie',
@@ -86,6 +89,6 @@ export const create = catchAsync(async (req, res) => {
   }
 
   await logActivity({ action: 'sortie', entity: 'sale', entityLabel: reference, details: `${receiptNumber} — ${richLines.length} ligne(s)` }, req)
-  await recomputeAlerts()
+  await recomputeAlerts(ownerId)
   ok(res, { ...exit.toObject(), total: computeTotal(exit) }, 201)
 })

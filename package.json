@@ -1,6 +1,6 @@
 {
   "name": "niba-tech-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "API REST de gestion de stock NIBA TECH (Node.js + Express + MongoDB)",
   "type": "module",
   "main": "src/index.js",

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const supplierSchema = new mongoose.Schema({
   _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
@@ -10,6 +10,8 @@ const supplierSchema = new mongoose.Schema({
   address: { type: String, default: '' },
   notes: { type: String, default: '' },
 })
+supplierSchema.index({ ownerId: 1 })
+withOwner(supplierSchema)
 withCommon(supplierSchema)
 
 export const Supplier = mongoose.model('Supplier', supplierSchema)

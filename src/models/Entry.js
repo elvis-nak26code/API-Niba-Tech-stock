@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const entrySchema = new mongoose.Schema({
   _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
-  reference: { type: String, required: true, unique: true },
+  reference: { type: String, required: true },
   productId: { type: String, required: true },
   productName: { type: String, default: '' },
   quantity: { type: Number, required: true },
@@ -16,6 +16,9 @@ const entrySchema = new mongoose.Schema({
 })
 entrySchema.index({ date: -1 })
 entrySchema.index({ productId: 1 })
+entrySchema.index({ ownerId: 1 })
+entrySchema.index({ ownerId: 1, reference: 1 }, { unique: true })
+withOwner(entrySchema)
 withCommon(entrySchema)
 
 export const Entry = mongoose.model('Entry', entrySchema)

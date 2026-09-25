@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const alertSchema = new mongoose.Schema({
   _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
@@ -15,6 +15,8 @@ const alertSchema = new mongoose.Schema({
 })
 alertSchema.index({ status: 1 })
 alertSchema.index({ productId: 1 })
+alertSchema.index({ ownerId: 1 })
+withOwner(alertSchema)
 withCommon(alertSchema)
 
 export const Alert = mongoose.model('Alert', alertSchema)

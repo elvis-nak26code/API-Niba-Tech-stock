@@ -14,10 +14,11 @@ function describeAlert(p, qty = p.quantity, min = p.minStock || 0) {
   }
 }
 
-// Reconstruit les alertes actives à partir du stock réel.
-export async function recomputeAlerts() {
-  const products = await Product.find({ isDeleted: { $ne: true } }).lean()
-  const active = await Alert.find({ status: 'active' }).lean()
+// Reconstruit les alertes actives d'un compte à partir de SON stock.
+export async function recomputeAlerts(ownerId) {
+  if (!ownerId) return
+  const products = await Product.find({ ownerId, isDeleted: { $ne: true } }).lean()
+  const active = await Alert.find({ ownerId, status: 'active' }).lean()
 
   const existingKey = new Map(active.map((a) => [`${a.productId}:${a.type}`, a]))
   const desired = new Map()
@@ -33,14 +34,14 @@ export async function recomputeAlerts() {
     seen.add(key)
     const { type, message } = describeAlert(p, qty, min)
     const existing = existingKey.get(key)
-    const data = { productId: p._id.toString(), productName: p.name, type, message, quantity: qty, minStock: min }
+    const data = { productId: p._id.toString(), productName: p.name, type, message, quantity: qty, minStock: min, ownerId }
     if (existing) {
       ops.push(Alert.updateOne({ _id: existing._id }, data))
     } else {
       ops.push(Alert.create({ ...data, status: 'active', createdBy: 'Système' }))
     }
   }
-  // alertes existantes qui ne correspondent plus → résolues
+  // alertes existantes de ce compte qui ne correspondent plus → résolues
   for (const a of active) {
     if (!seen.has(`${a.productId}:${a.type}`)) {
       ops.push(Alert.updateOne({ _id: a._id }, { status: 'resolved', resolvedAt: new Date() }))
@@ -49,8 +50,10 @@ export async function recomputeAlerts() {
   await Promise.all(ops)
 }
 
-// Enregistre un événement dans l'historique des activités.
+// Enregistre un événement dans l'historique du compte concerné.
 export async function logActivity(entry, req) {
+  const ownerId = req?.user?.id || entry.ownerId || ''
+  if (!ownerId) return null
   return Activity.create({
     action: entry.action,
     entity: entry.entity || 'other',
@@ -58,14 +61,15 @@ export async function logActivity(entry, req) {
     details: entry.details || '',
     quantity: entry.quantity ?? null,
     date: entry.date || new Date(),
-    userId: req?.user?.id || '',
+    ownerId,
+    userId: ownerId,
     userLabel: entry.userLabel || userLabel(req),
   })
 }
 
-export async function recomputeAndLogFallback() {
+export async function recomputeAndLogFallback(ownerId) {
   try {
-    await recomputeAlerts()
+    await recomputeAlerts(ownerId)
   } catch (err) {
     console.error('[alerts]', err.message)
   }

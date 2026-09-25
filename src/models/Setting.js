@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const settingSchema = new mongoose.Schema({
-  key: { type: String, required: true, unique: true, default: 'default' },
+  key: { type: String, required: true, default: 'default' },
   name: { type: String, default: 'NIBA TECH' },
   tagline: { type: String, default: '' },
   phone: { type: String, default: '+223 93 74 96 34' },
@@ -18,6 +18,8 @@ const settingSchema = new mongoose.Schema({
   defaultMinStock: { type: Number, default: 10 },
   theme: { type: String, default: 'light' },
 })
+settingSchema.index({ ownerId: 1, key: 1 }, { unique: true })
+withOwner(settingSchema)
 withCommon(settingSchema)
 
 export const Setting = mongoose.model('Setting', settingSchema)

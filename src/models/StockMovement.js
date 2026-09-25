@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const movementSchema = new mongoose.Schema({
   _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
@@ -17,6 +17,8 @@ const movementSchema = new mongoose.Schema({
 })
 movementSchema.index({ date: -1 })
 movementSchema.index({ productId: 1 })
+movementSchema.index({ ownerId: 1 })
+withOwner(movementSchema)
 withCommon(movementSchema)
 
 export const StockMovement = mongoose.model('StockMovement', movementSchema)

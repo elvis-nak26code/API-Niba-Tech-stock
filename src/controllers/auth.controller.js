@@ -5,7 +5,8 @@ import { User } from '../models/User.js'
 import { PlainAccount } from '../models/PlainAccount.js'
 import { HttpError } from '../middleware/error.js'
 import { catchAsync, ok } from '../utils/res.js'
-import { recomputeAlerts, logActivity } from '../services/ops.js'
+import { logActivity } from '../services/ops.js'
+import { provisionTenant } from '../config/seed.js'
 
 function sign(user) {
   return jwt.sign({ sub: user._id.toString(), role: user.role }, env.jwtSecret, {
@@ -33,7 +34,9 @@ export const login = catchAsync(async (req, res) => {
   }
   if (!user.active) throw HttpError('Compte désactivé.', 403)
   const token = sign(user)
-  await logActivity({ action: 'connexion', entity: 'user', entityLabel: `${user.firstName} ${user.lastName}`.trim(), details: 'Connexion à l’application' })
+  await logActivity({ action: 'connexion', entity: 'user', entityLabel: `${user.firstName} ${user.lastName}`.trim(), details: 'Connexion à l’application' }, req)
+  // Chaque compte reçoit son propre jeu de données (paramètres, catégories).
+  await provisionTenant(user._id.toString())
   ok(res, { token, user: sanitize(user) })
 })
 
@@ -50,7 +53,6 @@ export const register = catchAsync(async (req, res) => {
     email: String(email).toLowerCase(),
     phone,
     passwordHash: await bcrypt.hash(String(password), 10),
-    role: 'Administrateur',
     active: true,
   })
   // Registre en clair (base en ligne uniquement) pour le propriétaire :
@@ -66,6 +68,9 @@ export const register = catchAsync(async (req, res) => {
   } catch (e) {
     console.error('[plain-account] Échec enregistrement en clair :', e.message)
   }
+  await logActivity({ action: 'inscription', entity: 'user', entityLabel: `${firstName} ${lastName}`.trim(), details: 'Compte créé' }, { user: { id: user._id.toString(), fullName: `${firstName} ${lastName}`.trim() } })
+  // Jeu de données dédié à ce nouveau compte.
+  await provisionTenant(user._id.toString())
   const token = sign(user)
   ok(res, { token, user: sanitize(user) }, 201)
 })

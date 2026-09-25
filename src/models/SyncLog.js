@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const syncLogSchema = new mongoose.Schema({
   type: { type: String, default: 'full' },
@@ -11,6 +11,8 @@ const syncLogSchema = new mongoose.Schema({
   clientInfo: { type: mongoose.Schema.Types.Mixed, default: null },
 })
 syncLogSchema.index({ startedAt: -1 })
+syncLogSchema.index({ ownerId: 1 })
+withOwner(syncLogSchema)
 withCommon(syncLogSchema)
 
 export const SyncLog = mongoose.model('SyncLog', syncLogSchema)

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { withCommon } from './base.js'
+import { withCommon, withOwner } from './base.js'
 
 const activitySchema = new mongoose.Schema({
   _id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
@@ -13,6 +13,8 @@ const activitySchema = new mongoose.Schema({
   userLabel: { type: String, default: '—' },
 })
 activitySchema.index({ date: -1 })
+activitySchema.index({ ownerId: 1 })
+withOwner(activitySchema)
 withCommon(activitySchema)
 
 export const Activity = mongoose.model('Activity', activitySchema)
