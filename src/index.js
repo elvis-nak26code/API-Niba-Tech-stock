@@ -19,7 +19,7 @@ async function main() {
   app.use(cors({ origin: env.corsOrigins, credentials: true, optionsSuccessStatus: 204 }))
   app.use(express.json({ limit: '10mb' }))
 
-  app.get('/', (_req, res) => res.json({ ok: true, name: 'NIBA TECH API', version: '1.0.1' }))
+  app.get('/', (_req, res) => res.json({ ok: true, name: 'NIBA TECH API', version: '1.0.2' }))
   app.use('/api', routes)
 
   // Artefacts de mise à jour du bureau (latest.yml + installateur), publiés ici
