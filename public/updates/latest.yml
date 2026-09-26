@@ -1,8 +1,8 @@
-version: 1.0.2
+version: 1.0.3
 files:
-  - url: NIBA TECH Stock-Setup-1.0.2.exe
-    sha512: 4BglrdNFekChjsSvJBM+XtmvY1CZqKAji0AEvUXDrOBND++iwR4/xRMC8jsbJU0usmX1W5CQtvHb4YstNsm1/w==
-    size: 82443281
-path: NIBA TECH Stock-Setup-1.0.2.exe
-sha512: 4BglrdNFekChjsSvJBM+XtmvY1CZqKAji0AEvUXDrOBND++iwR4/xRMC8jsbJU0usmX1W5CQtvHb4YstNsm1/w==
-releaseDate: '2026-09-26T01:39:38.469Z'
+  - url: NIBA TECH Stock-Setup-1.0.3.exe
+    sha512: HjfuGaMtslNZRy3chvlVxqoNtyXCxeBU/YyeJ5gwIjB5x5w8+u2XISb7JhVX3lR3sKGmlBIz4z2d1yUNKIypgw==
+    size: 81522382
+path: NIBA TECH Stock-Setup-1.0.3.exe
+sha512: HjfuGaMtslNZRy3chvlVxqoNtyXCxeBU/YyeJ5gwIjB5x5w8+u2XISb7JhVX3lR3sKGmlBIz4z2d1yUNKIypgw==
+releaseDate: '2026-09-26T08:46:28.505Z'
