@@ -20,11 +20,11 @@ const CATEGORIES = [
 ]
 
 const SETTINGS = {
-  name: 'NIBA TECH',
-  tagline: 'Votre partenaire de distribution',
+  name: 'GSTOK',
+  tagline: 'Gestion de stock simplifiée',
   phone: '+223 93 74 96 34',
   phone2: '+226 64 74 73 80',
-  email: 'contact@nibatech.com',
+  email: 'contact@gstok.com',
   address: 'Bamako, Mali',
   currency: 'XOF',
   receiptPrefix: 'REC',

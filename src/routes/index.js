@@ -11,13 +11,18 @@ import alertRoutes from './alerts.routes.js'
 import historyRoutes from './history.routes.js'
 import settingRoutes from './settings.routes.js'
 import syncRoutes from './sync.routes.js'
-import { requireAuth } from '../middleware/auth.js'
+import adminRoutes from './admin.routes.js'
+import platformRoutes from './platform.routes.js'
 
 const router = Router()
 
-router.get('/health', (_req, res) => res.json({ ok: true, name: 'NIBA TECH API', time: new Date().toISOString() }))
+router.get('/health', (_req, res) => res.json({ ok: true, name: 'GSTOK API', time: new Date().toISOString() }))
 
 router.use('/auth', authRoutes)
+// Plateforme d'administration de l'exploitant : identité distincte, montage
+// AVANT `/admin` pour que la connexion y reste publique.
+router.use('/platform', platformRoutes)
+router.use('/admin', adminRoutes)
 router.use('/products', productRoutes)
 router.use('/categories', categoryRoutes)
 router.use('/clients', clientRoutes)

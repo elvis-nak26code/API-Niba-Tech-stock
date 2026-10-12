@@ -6,7 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test:admin": "MONGODB_URI=memory OFFLINE_AFTER_MS=2000 node test/admin.test.js"
   },
   "engines": {
     "node": ">=20"
