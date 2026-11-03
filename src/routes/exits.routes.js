@@ -7,5 +7,6 @@ router.use(requireAuth)
 
 router.get('/', exits.list)
 router.post('/', exits.create)
+router.put('/:id', exits.update)
 
 export default router
