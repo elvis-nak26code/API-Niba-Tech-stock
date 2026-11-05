@@ -1,0 +1,1 @@
+import{j as t,N as e}from"./index-B_TEHhdE.js";function o({as:r="section",className:a="",children:s,...n}){return t.jsx(r,{className:e("rounded-3xl bg-white shadow-card ring-1 ring-black/[0.03]","dark:bg-slate-900 dark:ring-white/10",a),...n,children:s})}export{o as C};
